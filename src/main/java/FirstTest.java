@@ -46,6 +46,41 @@ public class FirstTest {
                  "Не удается найти Search Wikipedia"
 
          );
+         //тап на поиск
+         waitForElementAdnClik(
+                 By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
+                 "Не удалось нажать на поле поиска'",
+                 5
+         );
+         //Ищет ĸаĸое-то слово
+         waitForElementAdnSendKeys(
+                 By.xpath("//*[contains(@text, 'Search Wikipedia')]"),
+                 "internet",
+                 "Не удалось найти статьи про 'internet'",
+                 10
+         );
+         //Убеждается, что найдено несĸольĸо статей (в моем слуае больше 3)
+         WebElement articles = driver.findElementById("org.wikipedia:id/page_list_item_title");
+         Assert.assertTrue("Найдено меньше трех статей",
+                 driver.findElements(By.id("org.wikipedia:id/page_list_item_title")).size() >= 3);
+
+
+         //Отменяет поисĸ, нажатие на X
+         waitForElementAndClear(
+                 By.id("org.wikipedia:id/search_src_text"),
+                 "Ошибка отмены поиска",
+                 5
+         );
+         // Убеждаемся, что результат поиска пропал (нет статей на странице)
+         waitForElementNotPresent(
+                 By.id("org.wikipedia:id/page_list_item_title"),
+                 "Результат поиска не пропал, статьи отображаются на странице",
+                 5
+
+         );
+
+
+
      }
 
     private void assertElementHasText(By by, String expectedText, String errorMessage) {
@@ -53,5 +88,39 @@ public class FirstTest {
         String actualText = element.getText();
         Assert.assertEquals(errorMessage, expectedText, actualText);
     }
+    private WebElement waitForElementPresent(By by, String error_message, long timeOutInSeconds){
+        WebDriverWait wait = new WebDriverWait(driver,timeOutInSeconds);
+        wait.withMessage(error_message + "\n");
+
+        return wait.until(
+                ExpectedConditions.presenceOfElementLocated(by)
+        );
+    }
+
+    private WebElement waitForElementPresent(By by, String error_message){
+        return waitForElementPresent(by, error_message, 5);
+    }
+
+    private WebElement waitForElementAdnClik(By by, String error_message, long timeOutInSeconds){
+        WebElement element = waitForElementPresent(by, error_message,timeOutInSeconds );
+        element.click();
+        return element;}
+    private WebElement waitForElementAdnSendKeys(By by, String value, String error_message, long timeOutInSeconds){
+        WebElement element = waitForElementPresent(by, error_message,timeOutInSeconds );
+        element.sendKeys(value);
+        return element;
+    }
+    private WebElement waitForElementAndClear(By by, String error_message, long timeOutInSeconds) {
+        WebElement element =waitForElementPresent(by, error_message, timeOutInSeconds);
+        element.clear();
+        return element;
+    }
+    private boolean waitForElementNotPresent(By by, String error_message, long timeOutInSeconds) {
+        WebDriverWait wait = new WebDriverWait(driver, timeOutInSeconds);
+        wait.withMessage(error_message + "\n");
+        return wait.until(ExpectedConditions.invisibilityOfElementLocated(by));
+    }
+
+
 
 }
